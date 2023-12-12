@@ -1,4 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link, Tabs } from 'expo-router';
 import { Pressable, useColorScheme } from 'react-native';
 
@@ -42,6 +43,13 @@ export default function TabLayout() {
             </Link>
           ),
         }}
+      />
+      <Tabs.Screen 
+        name='timer' 
+        options={{ 
+          title: '',
+          tabBarIcon: ({ color }) => <MaterialIcons name='timer' size={28} style={{ marginBottom: -3 }} color={color} />,
+        }} 
       />
       <Tabs.Screen
         name="two"
