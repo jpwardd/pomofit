@@ -164,8 +164,7 @@ const PomoTimer = () => {
           </Center>
           </Box>
             </Box>
-          <Center>
-
+        <Center mb='$4'>
           <HStack space='4xl' mb='$2.5'>
             <ButtonGroup space='2xl'>
             {

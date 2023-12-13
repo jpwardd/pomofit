@@ -18,15 +18,17 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const backgroundColor = useToken('colors', 'backgroundDark900');
+  const yellow400 = useToken('colors', 'yellow400');
   
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: yellow400,
         tabBarStyle: {
           backgroundColor: backgroundColor,
-        }
+        },
+        headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
