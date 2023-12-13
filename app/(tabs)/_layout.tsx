@@ -1,8 +1,9 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link, Tabs } from 'expo-router';
 import { Pressable, useColorScheme } from 'react-native';
-
 import Colors from '../../constants/Colors';
+import { useToken } from "@gluestack-ui/themed"
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -16,11 +17,18 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const backgroundColor = useToken('colors', 'backgroundDark900');
+  const yellow400 = useToken('colors', 'yellow400');
+  
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: yellow400,
+        tabBarStyle: {
+          backgroundColor: backgroundColor,
+        },
+        headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
@@ -42,6 +50,13 @@ export default function TabLayout() {
             </Link>
           ),
         }}
+      />
+      <Tabs.Screen 
+        name='timer' 
+        options={{ 
+          title: '',
+          tabBarIcon: ({ color }) => <MaterialIcons name='timer' size={28} style={{ marginBottom: -3 }} color={color} />,
+        }} 
       />
       <Tabs.Screen
         name="two"
