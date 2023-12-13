@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { differenceInSeconds } from "date-fns";
 // import { AnimatedSvg, AnimatedCircle } from '@gluestack-style/animation-resolver';
 import Svg, { Circle } from 'react-native-svg';
-import Animated from 'react-native-reanimated';
+import Animated, { useAnimatedProps } from 'react-native-reanimated';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -30,9 +30,17 @@ const circumference = radius * 2 * Math.PI;
 const PomoTimer = () => {
   const [time, setTime] = useState(1500);
   const [timerStart, setTimerStart] = useState(false);
+  const [initialStartTime, setInitialStartTime] = useState(0);
   // Storage when app is in background
   const appState = useRef(AppState.currentState);
   const [elapsed, setElapsed] = useState(0);
+
+  const animatedProps = useAnimatedProps(() => {
+    const strokeDashoffset = (circumference * time) / 1500 - circumference;
+    return {
+      strokeDashoffset,
+    };
+  });
 
   const toggleTimer = () => {
     if (!timerStart) {
@@ -119,33 +127,32 @@ const PomoTimer = () => {
   }, [timerStart, time]);
   
   return (
-    <Box sx={{ bg: '#2D2D2D', w: '100%', h: '100%'}}>
-            <Box sx={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-
-            
-            <Box sx={{ position: 'relative', width: circleSize, height: circleSize }}>
-            <Svg width={circleSize} height={circleSize}>
-              <Circle
-                cx={circleSize / 2}
-                cy={circleSize / 2}
-                r={radius}
-                stroke='#2D2D2D'
-                opacity={50}
-                fill='none'
-                strokeDasharray={`${circumference} ${circumference}`}
-                // strokeDashoffset={circumference - (circumference * elapsed) / time}
-                strokeWidth={30}
-                />
+    <Box sx={{ bg: '$backgroundDark900', w: '100%', h: '100%'}}>
+      <Box sx={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Box sx={{ position: 'relative', width: circleSize, height: circleSize }}>
+          <Svg width={circleSize} height={circleSize}>
+            <Circle
+              cx={circleSize / 2}
+              cy={circleSize / 2}
+              r={radius}
+              stroke='#2D2D2D'
+              opacity={50}
+              fill='none'
+              strokeDasharray={`${circumference} ${circumference}`}
+              // strokeDashoffset={circumference - (circumference * elapsed) / time}
+              strokeWidth={30}
+            />
               <AnimatedCircle
                 cx={circleSize / 2}
                 cy={circleSize / 2}
                 r={radius}
-                stroke='#4f46e5'
-                
+                stroke='#facc15'
                 fill='none'
                 strokeDasharray={`${circumference} ${circumference}`}
-                // strokeDashoffset={circumference - (circumference * elapsed) / time}
+                animatedProps={animatedProps}
                 strokeWidth={15}
+                rotation={-90}
+                origin={`${circleSize / 2}, ${circleSize / 2}`} 
               />
             </Svg>
           <Center sx={{ position: 'absolute', top: 0, left: 0, width: circleSize, height: circleSize }}>
@@ -164,30 +171,36 @@ const PomoTimer = () => {
             {
               timerStart ? 
               <Button
-              borderRadius='$full'
-                  p="$3.5"
-                  size='lg'
-                  bg="$indigo600"
-                  borderColor="$indigo600"
-                  onPress={toggleTimer}
-                  >
-                  <ButtonIcon as={PauseIcon} />
-                </Button>
+                size='xl'
+                bg="$yellow400"
+                borderColor="$yellow400"
+                onPress={toggleTimer}
+                width={150}
+              >
+                <ButtonText color='$backgroundDark900'>Pause</ButtonText>
+              </Button>
               : 
               <Button
-              borderRadius='$full'
-              p="$3.5"
-              size='lg'
-              bg="$indigo600"
-              borderColor="$indigo600"
-              onPress={toggleTimer}
+                size='xl'
+                bg="$yellow400"
+                borderColor="$yellow400"
+                onPress={toggleTimer}
+                width={150}
               >
-                  <ButtonIcon as={PlayIcon} />
+                  <ButtonText color='$backgroundDark'>Play</ButtonText>
                 </Button>
             }
 
-            <Button size='lg' variant='outline' py='$2.5' action='secondary'>
-              <ButtonText color='$indigo600'>Reset</ButtonText>
+            <Button 
+              size='xl' 
+              variant='outline' 
+              py='$2.5' 
+              action='secondary'
+              width={150}
+              onPress={reset}
+              borderColor='$yellow400'
+            >
+              <ButtonText color='$yellow400'>Reset</ButtonText>
             </Button>
           </ButtonGroup>
         </HStack>
