@@ -1,10 +1,9 @@
-import { Box, Button, ButtonText, Center, HStack, Heading, Text, Progress, VStack, ButtonIcon, ButtonGroup, styled, Pressable } from '@gluestack-ui/themed';
+import { Box, Button, ButtonText, Center, HStack, Text, ButtonGroup } from '@gluestack-ui/themed';
 import { AppState, AppStateStatus, Dimensions } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { differenceInSeconds } from "date-fns";
-// import { AnimatedSvg, AnimatedCircle } from '@gluestack-style/animation-resolver';
 import Svg, { Circle } from 'react-native-svg';
 import Animated, { useAnimatedProps } from 'react-native-reanimated';
 
@@ -156,7 +155,7 @@ const PomoTimer = () => {
               />
             </Svg>
           <Center sx={{ position: 'absolute', top: 0, left: 0, width: circleSize, height: circleSize }}>
-            <Text color='white' size='6xl' fontWeight='bold'> {`${
+            <Text color='$white' size='6xl' fontWeight='bold'> {`${
               Math.floor(time / 60) < 10
               ? `0${Math.floor(time / 60)}`
               : `${Math.floor(time / 60)}`
