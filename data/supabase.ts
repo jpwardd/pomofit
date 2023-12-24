@@ -54,7 +54,7 @@ class LargeSecureStore {
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl!, supabaseAnonKey!, {
+export const supabase = createClient("https://fckiybkapocvbdsqnpvm.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZja2l5YmthcG9jdmJkc3FucHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDE5NDgzMDUsImV4cCI6MjAxNzUyNDMwNX0.m-W3QnO0--Wu479xwmC9VXO-VEnQ24U_778sOhGIZz8", {
   auth: {
     storage: new LargeSecureStore(),
     autoRefreshToken: true,
