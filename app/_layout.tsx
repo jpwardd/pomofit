@@ -51,6 +51,7 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
+    
     <QueryClientProvider client={queryClient}>
       <GluestackUIProvider config={config}>
         <Stack>

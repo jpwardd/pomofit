@@ -28,7 +28,7 @@ const AddTaskIcon = (props: any) => (
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const backgroundColor = useToken('colors', 'backgroundDark900');
+  const backgroundColor = useToken('colors', 'black');
   const yellow400 = useToken('colors', 'yellow400');
 
   const navigation = useNavigation();
@@ -40,15 +40,20 @@ export default function TabLayout() {
         tabBarActiveTintColor: yellow400,
         tabBarStyle: {
           backgroundColor: backgroundColor,
+          borderTopColor: backgroundColor,
         },
         headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: '',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerShown: true,
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: backgroundColor,
+          },
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -72,28 +77,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <MaterialIcons name='timer' size={28} style={{ marginBottom: -3 }} color={color} />,
         }} 
       />
-      <Tabs.Screen
-        name="tasks/create"
-        options={{
-          title: '',
-          tabBarIcon: ({ color }) =>  { 
-            <PlusIcon color={backgroundColor} />
-            return (
-              <Box 
-                width={Platform.OS === 'ios' ? 60 : 60}
-                height={Platform.OS === 'ios' ? 60 : 60}
-                borderRadius='$full'
-                bg='$yellow400'
-                alignItems='center'
-                justifyContent='center'
-                borderColor='$backgroundDark900'
-                borderWidth={Platform.OS === 'ios' ? 5 : 0}
-              >
 
-              </Box>
-          )},
-        }}
-      />
       <Tabs.Screen
         name="two"
         options={{

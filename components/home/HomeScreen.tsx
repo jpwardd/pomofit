@@ -1,5 +1,5 @@
 import { View, SafeAreaView, StyleSheet, TouchableOpacity, Platform } from 'react-native'
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Agenda } from 'react-native-calendars'
 import { 
   Box, 
@@ -30,13 +30,18 @@ import {
   Center,
   useToken,
   useTheme,
+  Checkbox,
   FlatList,
+  CheckboxIndicator,
+  CheckboxLabel,
 } from '@gluestack-ui/themed'
 import WeekTaskSlider from '../shared/WeekTaskSlider'
 import { format } from 'date-fns'
 import CreateTaskForm from '../forms/CreateTaskForm'
 import { supabase } from '../../data/supabase'
 import { useQuery } from '@tanstack/react-query';
+import ListItem from '../shared/ListItem'
+import FaPlus from '../shared/icons/FaPlus'
 
 type Props = {}
 
@@ -54,12 +59,13 @@ const getTasks = async () => {
   return data;
 }
 
+
 const HomeScreen = (props: Props) => {
   const [showActionsheet, setShowActionsheet] = useState(false);
   const taskInputRef = useRef(null);
   const [taskId, setTaskId] = useState<null | number>(null);
   console.log('taskId', taskId);
-  const { data: tasks } = useQuery({ queryKey: ['tasks', taskId], queryFn: getTasks });
+  const { data: tasks } = useQuery({ queryKey: ['tasks'], queryFn: getTasks });
 
   const handleClose = () => {
     console.log('handleClose');
@@ -75,32 +81,39 @@ const HomeScreen = (props: Props) => {
   const onSubmitEditing = () => {
     setShowActionsheet(false);
   }
-
-  console.log('tasks', tasks);
+  const renderItem = useCallback(({ item }) => {
+    return (
+      <ListItem 
+        value={item.task_id} 
+        title={item.title} 
+        pomodoroEstimate={item.pomodoro_estimate}
+      />
+    )
+  }, []);
 
   return (
-    <>
-    <Box flex={1}>
-      <Text size='4xl' bold>
-        Today
-      </Text>
-      <Text size='md'>{today}</Text>
-      {/* Other content goes here */}
+    <Box w='100%' height='100%' backgroundColor='black'>
+    <Box flex={1} m='$1'>
+      <Box mb='$2'>
+        <Text  size='4xl' bold color='$yellow400'>
+          Today
+        </Text>
+        <Text size='md' color='$yellow400'>{today}</Text>
+      </Box>
       <FlatList 
         data={tasks}
-        renderItem={({ item }) => <Text>{item.title}</Text>}
+        renderItem={renderItem}
         keyExtractor={item => item.task_id}
       />
 
-      <Fab onPress={openActionsheet}>
-        <FabIcon />
-        <FabLabel>Add Task</FabLabel>
+      <Fab size='lg' onPress={openActionsheet} bgColor='$yellow400'>
+        <FabIcon as={FaPlus} color='black' />
       </Fab>
       <Actionsheet
         isOpen={showActionsheet}
         onClose={handleClose}
         snapPoints={[50]}
-        closeOnOverlayClick
+        closeOnOverlayClick={true}
         style={{ flex: 1 }}
       >
       <KeyboardAvoidingView
@@ -111,7 +124,7 @@ const HomeScreen = (props: Props) => {
           justifyContent: "flex-end",
         }}
       >
-        <ActionsheetContent backgroundColor='$backgroundDark900'>
+        <ActionsheetContent backgroundColor='$backgroundDark950'>
           <ActionsheetItem>
             <CreateTaskForm onSubmitEditing={onSubmitEditing} setTaskId={setTaskId} />
           </ActionsheetItem>
@@ -119,7 +132,7 @@ const HomeScreen = (props: Props) => {
       </KeyboardAvoidingView>
     </Actionsheet>
     </Box>
-  </>
+  </Box>
 
   )
 }
