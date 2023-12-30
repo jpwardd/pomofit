@@ -3,43 +3,51 @@ import { View, Text, Box, Button, ButtonText, Checkbox, CheckboxIndicator, Check
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; 
 import { Link, useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
+import { AnimatedKeyboardInfo } from 'react-native-reanimated';
+import { ScaleDecorator } from 'react-native-draggable-flatlist';
 
 
 type Props = {
-  value: string
-  title: string
-  pomodoroEstimate: number
+  item: any;
+  onLongPress: () => void
+  isActive: boolean
+
 }
 
-const ListItem = ({ value, title, pomodoroEstimate }: Props) => {
-  console.log('value', value);
+const ListItem = ({ item, onLongPress, isActive }: Props) => {
   const router = useRouter();
   return (
-    <TouchableOpacity onPress={() => router.push(`/tasks/${value}`)}>
-      <Box 
-        sx={{ 
-          height: '$16', 
-          flexDirection: 'row', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          padding: 10, 
-          borderRadius: 5, 
-          marginBottom: 10, 
-          backgroundColor: '$backgroundDark950'
-        }}
+    <ScaleDecorator>
+      <TouchableOpacity 
+        onPress={() => router.push(`/tasks/${item.task_id}`)}
+        onLongPress={onLongPress}
+        disabled={isActive}
       >
-        <Checkbox size='md' value={value} aria-label='task selection checkbox'>
-          <HStack space='sm'>
-            <CheckboxIndicator borderRadius='$full' />
-            <CheckboxLabel color='white'>{title}</CheckboxLabel>
+        <Box 
+          sx={{ 
+            height: '$16', 
+            flexDirection: 'row', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            padding: 10, 
+            borderRadius: 5, 
+            marginBottom: 10, 
+            backgroundColor: '$backgroundDark950'
+          }}
+        >
+          <Checkbox size='md' value={item.task_id} aria-label='task selection checkbox'>
+            <HStack space='sm'>
+              <CheckboxIndicator borderRadius='$full' />
+              <CheckboxLabel color='white'>{item.title}</CheckboxLabel>
+            </HStack>
+          </Checkbox>
+          <HStack space='md' alignItems='center'>
+            <Text color='$white' size='md'>0/{item.pomodoro_estimate}</Text>
+            <MaterialIcons name='timer' size={25} color='tomato' />
           </HStack>
-        </Checkbox>
-        <HStack space='md' alignItems='center'>
-          <Text color='$white' size='md'>0/{pomodoroEstimate}</Text>
-          <MaterialIcons name='timer' size={25} color='tomato' />
-        </HStack>
-    </Box>
-   </TouchableOpacity>
+      </Box>
+    </TouchableOpacity>
+    </ScaleDecorator>
   )
 }
 

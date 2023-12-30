@@ -7,7 +7,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Props = {
   onSubmitEditing: () => void
-  setTaskId: any
 }
 
 const createTask = async (data: any) => {
@@ -29,7 +28,7 @@ const CreateTaskForm = ({ onSubmitEditing, setTaskId }: Props) => {
       onSubmitEditing();
       return;
     }
-    
+
     await createTaskAsync(data);
      
       onSubmitEditing();

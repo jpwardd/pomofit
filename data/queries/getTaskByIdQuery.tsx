@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import { useQuery } from '@tanstack/react-query';
 
 const fetchTaskById = async (id: number) => {
+  console.log('fetchTaskById');
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
