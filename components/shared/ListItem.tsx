@@ -4,24 +4,24 @@ import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 import { AnimatedKeyboardInfo } from 'react-native-reanimated';
-import { ScaleDecorator } from 'react-native-draggable-flatlist';
 
 
 type Props = {
   item: any;
-  onLongPress: () => void
-  isActive: boolean
-
+  onLongPress?: () => void
+  isActive?: boolean
+  isTimerScreen?: boolean
 }
 
-const ListItem = ({ item, onLongPress, isActive }: Props) => {
+const ListItem = ({ item, onLongPress, isActive, isTimerScreen }: Props) => {
   const router = useRouter();
   return (
-    <ScaleDecorator>
       <TouchableOpacity 
         onPress={() => router.push(`/tasks/${item.task_id}`)}
+      
         onLongPress={onLongPress}
         disabled={isActive}
+        pressRetentionOffset={{ top: 20, left: 20, bottom: 20, right: 20 }}  
       >
         <Box 
           sx={{ 
@@ -41,13 +41,14 @@ const ListItem = ({ item, onLongPress, isActive }: Props) => {
               <CheckboxLabel color='white'>{item.title}</CheckboxLabel>
             </HStack>
           </Checkbox>
-          <HStack space='md' alignItems='center'>
-            <Text color='$white' size='md'>0/{item.pomodoro_estimate}</Text>
-            <MaterialIcons name='timer' size={25} color='tomato' />
-          </HStack>
+            <TouchableOpacity onPress={() => router.push(`/tasks/timer/${item.task_id}`)}>
+              <HStack space='md' alignItems='center'>
+                <Text color='$white' size='md'>0/{item.pomodoro_estimate}</Text>
+                {!isTimerScreen && <MaterialIcons name='timer' size={30} color='tomato' />}
+              </HStack>
+            </TouchableOpacity>
       </Box>
     </TouchableOpacity>
-    </ScaleDecorator>
   )
 }
 

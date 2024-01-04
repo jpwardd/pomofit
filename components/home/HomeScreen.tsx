@@ -1,15 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Text, Box, Fab, FabIcon, Actionsheet, ActionsheetItem, ActionsheetContent, KeyboardAvoidingView } from '@gluestack-ui/themed';
+import { View, StyleSheet, Platform } from 'react-native';
+import { Text, Box, Fab, FabIcon, Actionsheet, ActionsheetItem, ActionsheetContent, ActionsheetBackdrop, KeyboardAvoidingView } from '@gluestack-ui/themed';
 import { format } from 'date-fns';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ListItem from '../shared/ListItem';
 import FaPlus from '../shared/icons/FaPlus';
 import CreateTaskForm from '../forms/CreateTaskForm';
 import { supabase } from '../../data/supabase';
-import { useReorderTaskMutation } from '../../data/mutations/useReorderTaskMutation';
-import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
-import DraggableFlatList from 'react-native-draggable-flatlist';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 
 type Props = {};
 
@@ -83,76 +80,66 @@ const HomeScreen = (props: Props) => {
         order_place: index + 1,
       }));
   
-      // Update the order on the server
       await reorderTasks(updatedTasks);
     } catch (error) {
-      // An error occurred during the mutation, rollback the state
       console.error('Error during reorder:', error);
   
-      // Refetch the tasks from the server to get the original order
       const originalTasks = await getTasks();
   
-      // Set the state back to the original order
       setTasks(originalTasks);
-  
-      // Optionally, you can display an error message to the user
-      // or handle the error in another way based on your requirements
     }
   };
 
   return (
     <Box w='100%' height='100%' backgroundColor='black'>
-      <Box flex={1} m='$1'>
-        <Box mb='$2'>
-          <Text size='4xl' bold color='$yellow400'>
-            Today
-          </Text>
-          <Text size='md' color='$yellow400'>
-            {today}
-          </Text>
-        </Box>
-        <DraggableFlatList
-          data={tasks}
-          renderItem={({ item, drag, isActive }) => (
+  <Box flex={1} m='$1'>
+    <Box mb='$2'>
+      <Text size='4xl' bold color='$yellow400'>
+        Today
+      </Text>
+      <Text size='md' color='$yellow400'>
+        {today}
+      </Text>
+    </Box>
+    <Box flex={1}>
+      <DraggableFlatList
+        data={tasks}
+        renderItem={({ item, drag, isActive }) => (
+          <ScaleDecorator>
             <ListItem 
               item={item}
-              pomodoroEstimate={item.pomodoro_estimate} 
               key={item.task_id} 
               onLongPress={drag}
               isActive={isActive}
             />
-          )}
-          onDragEnd={({ data }) => handleDragEnd(data)}
-          keyExtractor={keyExtractor}
-        />
+          </ScaleDecorator>
+        )}
+        onDragEnd={({ data }) => handleDragEnd(data)}
+        keyExtractor={keyExtractor}
+      />
 
-        <Fab size='lg' onPress={openActionsheet} bgColor='$yellow400'>
-          <FabIcon as={FaPlus} color='black' />
-        </Fab>
-        <Actionsheet
-          isOpen={showActionsheet}
-          onClose={handleClose}
-          snapPoints={[50]}
-          closeOnOverlayClick={true}
-          style={{ flex: 1 }}
-        >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{
-              position: 'relative',
-              flex: 1,
-              justifyContent: 'flex-end',
-            }}
-          >
-            <ActionsheetContent backgroundColor='$backgroundDark950'>
-              <ActionsheetItem>
-                <CreateTaskForm onSubmitEditing={onSubmitEditing} />
-              </ActionsheetItem>
-            </ActionsheetContent>
-          </KeyboardAvoidingView>
-        </Actionsheet>
-      </Box>
+      <Fab size='lg' onPress={openActionsheet} bgColor='$yellow400'>
+        <FabIcon as={FaPlus} color='black' />
+      </Fab>
     </Box>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <Actionsheet
+        isOpen={showActionsheet}
+        onClose={handleClose}
+        closeOnOverlayClick={true}
+        snapPoints={[50]} 
+      >
+        <ActionsheetBackdrop />
+        <ActionsheetContent backgroundColor='$backgroundDark950'>
+          <ActionsheetItem>
+            <CreateTaskForm onSubmitEditing={onSubmitEditing} />
+          </ActionsheetItem>
+        </ActionsheetContent>
+      </Actionsheet>
+    </KeyboardAvoidingView>
+  </Box>
+</Box>
+
   );
 };
 

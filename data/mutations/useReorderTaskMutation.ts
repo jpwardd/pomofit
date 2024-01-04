@@ -40,6 +40,8 @@ export const useReorderTaskMutation = () => {
     },
     onMutate: (newOrder) => {
       queryClient.setQueryData(['tasks'], newOrder)
+
+      return () => queryClient.setQueryData(['tasks'], newOrder)
     }
   });
 }
