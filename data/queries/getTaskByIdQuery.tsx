@@ -12,7 +12,10 @@ const fetchTaskById = async (id: number) => {
   return data;
 }
 
-export const useGetTaskByIdQuery = (id: number) => {
-  return useQuery({ queryKey: ['task', id], queryFn: () => fetchTaskById(id) });
+export const useGetTaskByIdQuery = (taskId: number) => {
+  return useQuery({ 
+    queryKey: ['task', taskId], 
+    queryFn: () => fetchTaskById(taskId),
+  });
 }
 

@@ -1,4 +1,4 @@
-import { Box, Button, ButtonText, Center, HStack, Text, ButtonGroup, VStack, Divider } from '@gluestack-ui/themed';
+import { Box, Button, ButtonText, Center, HStack, Text, ButtonGroup, VStack, Divider, Spinner } from '@gluestack-ui/themed';
 import { AppState, AppStateStatus, Dimensions, TouchableOpacity } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,12 @@ import { differenceInSeconds } from "date-fns";
 import Svg, { Circle } from 'react-native-svg';
 import Animated, { useAnimatedProps, useSharedValue, withTiming } from 'react-native-reanimated';
 import ListItem from './shared/ListItem';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useGetTaskByIdQuery } from '../data/queries/getTaskByIdQuery';
+import { useLocalSearchParams } from 'expo-router';
+import { supabase } from '../data/supabase';
+import { UpdateSources } from 'react-native-calendars/src/expandableCalendar/commons';
+import { useUpdatePomodorosCompletedMutation } from '../data/mutations/useUpdatePomodorosCompleted';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -30,12 +36,18 @@ const circumference = radius * 2 * Math.PI;
 const PomoTimer = () => {
   const [time, setTime] = useState(5);
   const [timerStart, setTimerStart] = useState(false);
-  const [initialStartTime, setInitialStartTime] = useState(0);
   const [activeTimer, setActiveTimer] = useState('Focus');
+
+  const { id: taskId } = useLocalSearchParams<{ id: string }>();
+
+  const queryClient = useQueryClient();
+  const { data: task, isLoading} = useGetTaskByIdQuery(+taskId);
+  const { mutateAsync: updateTaskPomodorosCompleted} = useUpdatePomodorosCompletedMutation();
+
   // Storage when app is in background
   const appState = useRef(AppState.currentState);
   const [elapsed, setElapsed] = useState(0);
-  const progress = useSharedValue(1); // starts from 1 (full circumference)
+  const progress = useSharedValue(1);
 
   const animatedProps = useAnimatedProps(() => {
     const strokeDashoffset = progress.value;
@@ -50,13 +62,6 @@ const PomoTimer = () => {
   
     setTimerStart(!timerStart);
   };
-
-  const reset = () => {
-    // I need to reset the time to the default time set by the user in the settings I think these setting can be stored in async storage
-    setTime(5);
-    setTimerStart(false);
-    progress.value = 0;
-  }
 
   const recordStartTime = async () => {
     try {
@@ -123,13 +128,41 @@ const PomoTimer = () => {
     return () => clearInterval(interval);
   }, [timerStart, time]);
 
+  const updateFocusSessions = async () => {
+    const focusSessions = await AsyncStorage.getItem('focusSessions');
+    const newFocusSessions = focusSessions ? Number(focusSessions) + 1 : 1;
+    await AsyncStorage.setItem('focusSessions', String(newFocusSessions));
+
+    console.log('newFocusSessions', newFocusSessions);
+  
+    if (newFocusSessions === 4) {
+      // Reset the focus sessions count
+      console.log('reset focus sessions');
+      await AsyncStorage.setItem('focusSessions', String(0));
+      // Move to the long break timer
+      handleLongBreakPress();
+    }
+  };
 
   // useEffect(() => {
-  //   if (time <= 0) {
-  //     progress.value = 0;
-  //     movetoNextTimer();
+  //   const clearStorage = async () => {
+  //     await AsyncStorage.clear();
   //   }
-  // }, [time]);
+
+  //   clearStorage();
+  // }, []);
+
+  useEffect(() => {
+    if (time <= 0) {
+      if (activeTimer === 'Focus') {
+        updateTaskPomodorosCompleted(task);
+        updateFocusSessions();
+      }
+  
+      progress.value = 0;
+      movetoNextTimer();
+    }
+  }, [time, activeTimer]);
 
   const movetoNextTimer = () => {
     setTimerStart(false); // reset the timerStart state
@@ -150,42 +183,62 @@ const PomoTimer = () => {
   }
 
 const handleFocusPress = (): void => {
-    progress.value = 0;
-    setTimerStart(false);
-    setTime(25 * 60);
+    resetTimer();
+    setTime(5);
     setActiveTimer('Focus');
 }
 
 const handleShortBreakPress = (): void => {
-    progress.value = 0;
-    setTimerStart(false);
+    resetTimer();
     setTime(5 * 60);
     setActiveTimer('Short Break');
 }
 
 const handleLongBreakPress = (): void => {
-    progress.value = 0;
-    setTimerStart(false);
+    resetTimer();
     setTime(15 * 60);
     setActiveTimer('Long Break');
 }
-  
+
+const resetTimer = () => {
+  progress.value = 0;
+  setTimerStart(false);
+};
+
+const handleSkipPress = async (): Promise<void> => {
+  progress.value = 0;
+  setTimerStart(false);
+  if (activeTimer === 'Focus') {
+    await updateTaskPomodorosCompleted(task);
+    await updateFocusSessions();
+
+    const focusSessions = await AsyncStorage.getItem('focusSessions');
+    if (Number(focusSessions) === 0) {
+      handleLongBreakPress();
+    } else {
+      movetoNextTimer();
+    }
+  } else {
+    movetoNextTimer();
+  }
+};
+
 return (
     <Box sx={{ bg: 'black', w: '100%', h: '100%'}}>
       <Center>
         <HStack space='sm' mt='$10' mb='$2.5'>
           <Box h='100%' bg={activeTimer === 'Focus' ? '$backgroundDark950' : 'transparent'} p='$2' borderRadius='$lg'>
-            <TouchableOpacity onPress={handleFocusPress}>
+            <TouchableOpacity onPressIn={handleFocusPress}>
               <Text color={activeTimer === 'Focus' ? '$yellow400' : '$white'}>Focus</Text>
             </TouchableOpacity>
           </Box>
           <Box h='100%' bg={activeTimer === 'Short Break' ? '$backgroundDark950' : 'transparent'} p='$2' borderRadius='$lg'>
-            <TouchableOpacity onPress={handleShortBreakPress}>
+            <TouchableOpacity onPressIn={handleShortBreakPress}>
               <Text color={activeTimer === 'Short Break' ? '$yellow400' : '$white'}>Short Break</Text>
             </TouchableOpacity>
           </Box>
           <Box h='100%' bg={activeTimer === 'Long Break' ? '$backgroundDark950' : 'transparent'} p='$2' borderRadius='$lg'>
-            <TouchableOpacity onPress={handleLongBreakPress}>
+            <TouchableOpacity onPressIn={handleLongBreakPress}>
               <Text color={activeTimer === 'Long Break' ? '$yellow400' : '$white'}>Long Break</Text>
             </TouchableOpacity>
           </Box>
@@ -225,14 +278,14 @@ return (
           </Box>
         </Box>
         <Box sx={{ mb: '$10', mr: '$2', ml: '$2'}}>
-        <ListItem 
-          item={{
-            task_id: 1,
-            title: 'Test',
-            pomodoro_estimate: 1,
-          }}
+        { isLoading ? 
+          <Spinner size="small" /> 
+          :
+          <ListItem 
+          item={task}
           isTimerScreen={true}
-        />
+          />
+        }
         </Box>
         <Center mb='$10'>
           <HStack space='4xl' mb='$2.5'>
@@ -265,7 +318,7 @@ return (
               py='$2.5' 
               action='secondary'
               width={150}
-              onPress={reset}
+              onPress={handleSkipPress}
               borderColor='$yellow400'
               >
               <ButtonText color='$yellow400'>Skip</ButtonText>
