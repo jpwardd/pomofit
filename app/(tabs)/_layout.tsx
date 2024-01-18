@@ -42,15 +42,25 @@ export default function TabLayout() {
           backgroundColor: backgroundColor,
           borderTopColor: backgroundColor,
         },
+        headerShadowVisible: false,
         headerShown: false,
       }}>
+      <Tabs.Screen 
+        name='lists' 
+        options={{ 
+          title: '',
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: backgroundColor,
+          },
+      }}
+      />
       <Tabs.Screen
         name="index"
         options={{
           title: '',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerShown: true,
-          headerShadowVisible: false,
           headerStyle: {
             backgroundColor: backgroundColor,
           },

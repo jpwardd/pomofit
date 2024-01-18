@@ -105,8 +105,6 @@ const HomeScreen = (props: Props) => {
     reorderMutation.mutate(reorderedTasks);
   };
 
-  console.log('tasks', incompleteTasks);
-
   return (
     <Box w='100%' height='100%' backgroundColor='black'>
   <Box flex={1} m='$1'>

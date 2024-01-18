@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions, View } from 'react-native';
 import { Box, Center, Text } from '@gluestack-ui/themed';
 
 import EditScreenInfo from '../../components/EditScreenInfo';
-import HomeScreen from '../../components/home/HomeScreen';
+import HomeScreen from '../../components/tasks/HomeScreen';
 import PagerView from 'react-native-pager-view';
 
 export default function TabOneScreen() {
